@@ -1,4 +1,4 @@
-package com.cg.service;
+package com.example.bakery.service;
 
 import java.util.List;
 import java.util.Optional;

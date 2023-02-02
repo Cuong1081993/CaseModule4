@@ -4,10 +4,11 @@ import com.example.bakery.model.Product;
 import com.example.bakery.model.dto.ProductCreateDTO;
 import com.example.bakery.model.dto.ProductEditDTO;
 import com.example.bakery.model.dto.ProductResponseDTO;
+import com.example.bakery.service.IGeneralService;
 
 import java.util.List;
 
-public interface IProductService extends com.cg.service.IGeneralService<Product> {
+public interface IProductService extends IGeneralService<Product> {
 
     public List<ProductResponseDTO> findAllProduct();
 

@@ -1,4 +1,4 @@
-package com.cg.exception;
+package com.example.bakery.exception;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;

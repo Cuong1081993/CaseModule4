@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ProductMediaRepository extends JpaRepository<ProductMedia, Long> {
-    Optional<ProductMedia> findAllByProduct(Product product);
+    Optional<ProductMedia> findByProduct(Product product);
 }

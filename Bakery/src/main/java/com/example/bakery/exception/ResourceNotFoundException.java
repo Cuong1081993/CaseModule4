@@ -1,4 +1,4 @@
-package com.cg.exception;
+package com.example.bakery.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -24,6 +25,7 @@ public class ProductCreateDTO implements Validator {
     private String price;
     private Integer category;
     private String description;
+    private MultipartFile file;
 
     public Product toProduct(){
         return new Product()
