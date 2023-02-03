@@ -1,16 +1,14 @@
 package com.example.bakery.model;
 
 
+
 import com.example.bakery.model.enums.ERole;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
-import org.apache.catalina.User;
 
 import javax.persistence.*;
 import java.util.List;
+
 
 @Getter
 @Setter
@@ -33,4 +31,5 @@ public class Role {
 
     @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
     private List<User> users;
+
 }

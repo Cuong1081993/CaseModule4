@@ -1,4 +1,4 @@
-package com.cg.utils;
+package com.example.bakery.utils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
