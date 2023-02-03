@@ -4,14 +4,14 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "application.uploader")
+@ConfigurationProperties(prefix = "application.cloudinary")
 @Data
 public class CloudinaryConfig {
-    @Value("${application.uploader.cloud-name}")
+    @Value("${application.cloudinary.cloud-name}")
     private String cloudName;
-    @Value("${application.uploader.api-key}")
+    @Value("${application.cloudinary.api-key}")
     private String apiKey;
-    @Value("${application.uploader.api-secret}")
+    @Value("${application.cloudinary.api-secret}")
     private String apiSecret;
 
 }

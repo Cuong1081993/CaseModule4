@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
     @NoArgsConstructor
     @AllArgsConstructor
     @Accessors(chain = true)
-    public class UserDTO {
+    public class UserDTO  {
 
         private Long id;
 
