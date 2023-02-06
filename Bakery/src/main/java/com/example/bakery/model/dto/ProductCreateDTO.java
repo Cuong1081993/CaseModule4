@@ -23,7 +23,7 @@ public class ProductCreateDTO implements Validator {
 
     private String title;
     private String price;
-    private Integer category;
+    private String category;
     private String description;
     private MultipartFile file;
 

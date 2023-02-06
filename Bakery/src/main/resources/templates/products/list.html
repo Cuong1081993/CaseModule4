@@ -34,7 +34,7 @@
         </div>
     </header>
     <div class="content" style="width: 100%; top: 150px; position: absolute">
-        <table id="tbCustomer" class="table table-hover">
+        <table id="tbProduct" class="table table-hover">
             <thead>
             <tr>
                 <th>#</th>
@@ -44,7 +44,7 @@
                 <th>Quantity</th>
                 <th>Description</th>
                 <th>Category</th>
-                <th colspan="2">Action</th>
+                <th colspan="2" class="text-center">Action</th>
             </tr>
             </tr>
             </thead>
@@ -90,6 +90,7 @@
     page.element.btnSave = $("#btnSave");
 
     page.element.frmListProduct = $("#tbListProducts tbody");
+    page.element.tbProduct = $("#tbProduct");
 
     page.dialogs.elements.modalCreateProduct = $("#modalCreateProduct");
     page.dialogs.elements.frmProduct = $("#frmProduct");
@@ -97,6 +98,7 @@
     page.dialogs.elements.wrapper = $("section .wrapper");
     page.dialogs.elements.productTitle = $("#productTitle");
     page.dialogs.elements.productPrice = $("#productPrice");
+    page.dialogs.elements.productCategory = $("#productCategory");
     page.dialogs.elements.description = $("#description");
     page.dialogs.elements.imageFile = $("#imageFile");
     page.dialogs.elements.wrapperContent = $("section .wrapper .content");
@@ -169,10 +171,11 @@
         let formData = new FormData();
         formData.append("title", page.dialogs.elements.productTitle.val().toString());
         formData.append("price", page.dialogs.elements.productPrice.val().toString());
+        formData.append("category", page.dialogs.elements.productCategory.val().toString());
         formData.append("description", page.dialogs.elements.description.val().toString());
         formData.append("file", page.dialogs.elements.imageFile[0].files[0]);
 
-        console.log(formData)
+
         $.ajax({
             type: "POST",
             contentType: false,
@@ -181,7 +184,6 @@
             url: page.urls.doSave,
             data: formData
         }).done((data) => {
-            console.log(data)
             page.commands.renderProduct(data);
 
             // page.commands.addRow();
@@ -200,9 +202,9 @@
     }
 
     page.commands.renderProduct = (product) => {
-        let cloudinaryServer = 'https://res.cloudinary.com/toanphat/image/upload';
+        let cloudinaryServer = 'https://res.cloudinary.com/dkeilyism/image/upload/';
         let BASE_SCALE_IMAGE = "c_limit,w_150,h_100,q_100";
-        let folderName = product.folderName;
+        let folderName = product.fileFolder;
         let fileName = product.fileName;
 
         let avatarUrl = cloudinaryServer + '/' + BASE_SCALE_IMAGE + '/' + folderName + '/' + fileName;
@@ -215,18 +217,29 @@
                     </td>
                     <td>${product.title}</td>
                     <td>${product.price}</td>
+                    <td>${product.quantity}</td>
+                    <td>${product.category}</td>
                     <td>${product.description}</td>
-                    <td>Edit</td>
+                    <td>
+                        <button class="btn btn-outline-secondary update" data-id="${product.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                     <td>
+                        <button class="btn btn-outline-danger delete" data-id="${product.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
 
-        page.element.frmListProduct.prepend(str)
+
+        page.element.tbProduct.prepend(str)
     }
 
     page.initializeControlEvent = () => {
 
         page.element.btnShowCreateModal.on("click", function () {
-            console.log(123)
             page.commands.showCreateModal();
         });
 
@@ -250,6 +263,8 @@
 
     $(() => {
         page.loadData.getAllProducts();
+        let element = $("#productCategory");
+        getAllCategory(element);
         // page.loadData.getAllProducts().then(function () {
         //     page.initializeControlEvent();
         // });
@@ -257,6 +272,23 @@
         page.initializeControlEvent();
 
     });
+    function getAllCategory(element) {
+
+        $.ajax({
+            "headers": {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "GET",
+            url: page.urls.getAllCategory
+        })
+            .done((data) => {
+                element.append('<option value="-1" selected disabled>Category</option>')
+                $.each(data, function (index, value) {
+                    element.append(`<option value="${value.id}">${value.typeProduct}</option>`)
+                });
+            })
+    }
 </script>
 </body>
 <footer>

@@ -101,6 +101,7 @@ public class ProductService implements IProductService {
         product.setQuantity(0L);
         productRepository.save(product);
 
+
         String fileType = productCreateDto.getFile().getContentType();
 
         assert fileType != null;
@@ -114,6 +115,7 @@ public class ProductService implements IProductService {
 
         uploadAndSaveProductImage(productCreateDto, product, productMedia);
 
+
         return product;
     }
 
@@ -121,6 +123,7 @@ public class ProductService implements IProductService {
         try {
             Map util = uploadUtil.buildImageUploadParams(productMedia);
             MultipartFile file = productCreateDto.getFile();
+
             Map uploadResult = uploadService.uploadImage(file, util);
             System.out.println(uploadResult);
             String fileUrl = (String) uploadResult.get("secure_url");
@@ -146,7 +149,7 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductResponseDTO> findAllProductDeleteFalse() {
-        return null;
+        return productRepository.findAllProductDeleteFalse();
     }
 
     @Override

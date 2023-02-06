@@ -39,7 +39,7 @@ public class ProductAPI {
     }
 
     @PostMapping
-    public ResponseEntity<?> createProduct(@ModelAttribute ProductCreateDTO productCreateDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> createProduct(ProductCreateDTO productCreateDTO, BindingResult bindingResult) {
         productCreateDTO.setId(null);
 
         Product newProduct = productService.create(productCreateDTO);

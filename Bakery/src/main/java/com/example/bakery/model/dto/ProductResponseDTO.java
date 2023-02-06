@@ -1,6 +1,7 @@
 package com.example.bakery.model.dto;
 
 
+import com.example.bakery.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
