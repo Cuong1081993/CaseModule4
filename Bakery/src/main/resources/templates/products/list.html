@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block th:replace="/layout/linkcss :: linkcss"/>
+    <link rel="stylesheet" href="/assets/bootstrap/v5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/sweetalert2/v11.7.0/sweetalert2.min.css">
+    <link rel="stylesheet" href="/assets/fontawesome/v5.15.4/css/all.min.css"/>
+    <link rel="stylesheet" href="/assets/css/preview-image.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+
+</head>
+<body>
+
+<th:block th:replace="/layout/header :: header"/>
+
+<div class="container-fluid">
+    <header style="position: absolute; top: 70px; width: 100%">
+        <div class="col-lg-12">
+            <div class="col-lg-6 float-start">
+                <h1>List of products</h1>
+            </div>
+            <div class="col-lg-6 float-start text-right">
+                <button type="button" id="btnShowCreateModal" class="btn btn-outline-light">
+                    <i class="fas fa-plus"></i>
+                    Create Product
+                </button>
+                <button type="button" id="btnLogout" class="btn btn-outline-light">
+                    <i class="far fa-sign-out"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+    <div class="content" style="width: 100%; top: 150px; position: absolute">
+        <table id="tbCustomer" class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th colspan="2">Action</th>
+            </tr>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <th:block th:replace="products/modalCreate" />
+
+<script src="/assets/jquery/v3.6.3/jquery-3.6.3.min.js"></script>
+<script src="/assets/jquery-validate/v1.19.5/jquery.validate.min.js"></script>
+<script src="/assets/bootstrap/v5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/sweetalert2/v11.7.0/sweetalert2.min.js"></script>
+<script src="/assets/js/appBase.js"></script>
+
+
+
+<script>
+
+    let page = {
+        urls: {
+            getAllProducts: AppBase.BASE_URL_PRODUCT,
+            getAllCategory: AppBase.API_CATEGORY,
+            doSave: AppBase.BASE_URL_PRODUCT,
+            // doDelete: App.BASE_URL_PRODUCT + "/delete/"
+        },
+        element: {},
+        commands: {},
+        loadData: {},
+        dialogs: {
+            elements: {},
+            commands: {}
+        }
+    }
+    page.element.loader = $(".loader");
+    page.element.tempProduct = $("#tempProduct");
+    page.element.currentRow = $("#currentRow");
+    page.element.btnShowCreateModal = $("#btnShowCreateModal");
+
+    page.element.btnDelete = $("#tempProduct body");
+    page.element.btnSave = $("#btnSave");
+
+    page.element.frmListProduct = $("#tbListProducts tbody");
+
+    page.dialogs.elements.modalCreateProduct = $("#modalCreateProduct");
+    page.dialogs.elements.frmProduct = $("#frmProduct");
+
+    page.dialogs.elements.wrapper = $("section .wrapper");
+    page.dialogs.elements.productTitle = $("#productTitle");
+    page.dialogs.elements.productPrice = $("#productPrice");
+    page.dialogs.elements.description = $("#description");
+    page.dialogs.elements.imageFile = $("#imageFile");
+    page.dialogs.elements.wrapperContent = $("section .wrapper .content");
+    page.dialogs.elements.imagePreview = $("section .image-preview canvas");
+    page.dialogs.elements.canvas = $("#canvas");
+    page.dialogs.elements.context = page.dialogs.elements.canvas[0].getContext('2d');
+    page.dialogs.elements.imagePreview.css("display", "none");
+    page.dialogs.elements.divImagePreview = $("div.image-preview, div.file-name");
+    page.dialogs.elements.btnClearImagePreview = $(".clear-image-preview i");
+
+    page.loadData.getAllProducts = () => {
+        $.ajax({
+            type: "GET",
+            url: page.urls.getAllProducts,
+        }).done((data) => {
+
+            $.each(data, (i, item) => {
+                page.commands.renderProduct(item);
+            })
+
+        }).fail((err) => {
+            console.log(err)
+        }).always(function () {
+            page.element.loader.addClass("hide");
+            page.element.btnSave.prop('disabled', false);
+        });
+    }
+
+    page.commands.showCreateModal = () => {
+        page.dialogs.elements.modalCreateProduct.modal('show');
+    }
+
+    page.dialogs.commands.loadImageToCanvas = (imageFile) => {
+        page.dialogs.elements.imagePreview.css("display", "");
+        page.dialogs.elements.wrapper.addClass("active");
+        page.dialogs.elements.wrapperContent.css("opacity", 0);
+
+        let imageObj = new Image();
+
+        imageObj.onload = function () {
+            page.dialogs.elements.context.canvas.width = imageObj.width;
+            page.dialogs.elements.context.canvas.height = imageObj.height;
+            page.dialogs.elements.context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
+        };
+
+        imageObj.src = URL.createObjectURL(imageFile)
+    }
+    page.dialogs.commands.changeImagePreview = () => {
+        let imageFile = page.dialogs.elements.imageFile[0].files[0];
+
+        if (imageFile) {
+            let reader = new FileReader();
+
+            reader.readAsDataURL(imageFile);
+
+            reader.onload = function(e){
+                if (e.target.readyState === FileReader.DONE) {
+                    page.dialogs.commands.loadImageToCanvas(imageFile);
+                }
+            }
+        } else {
+            page.dialogs.elements.clearImagePreview();
+        }
+    }
+
+    page.dialogs.commands.createProduct = () => {
+        page.element.loader.removeClass("hide");
+        page.element.btnSave.prop('disabled', true);
+
+        let formData = new FormData();
+        formData.append("title", page.dialogs.elements.productTitle.val().toString());
+        formData.append("price", page.dialogs.elements.productPrice.val().toString());
+        formData.append("description", page.dialogs.elements.description.val().toString());
+        formData.append("file", page.dialogs.elements.imageFile[0].files[0]);
+
+        console.log(formData)
+        $.ajax({
+            type: "POST",
+            contentType: false,
+            cache: false,
+            processData: false,
+            url: page.urls.doSave,
+            data: formData
+        }).done((data) => {
+            console.log(data)
+            page.commands.renderProduct(data);
+
+            // page.commands.addRow();
+
+            AppBase.showSuccessAlert("Thêm sản phẩm thành công");
+
+            page.dialogs.elements.modalCreateProduct.modal('hide');
+
+        }).fail((err) => {
+            console.log(err)
+            AppBase.showErrorAlert("Thêm sản phẩm thất bại");
+        }).always(function () {
+            page.element.loader.addClass("hide");
+            page.element.btnSave.prop('disabled', false);
+        });
+    }
+
+    page.commands.renderProduct = (product) => {
+        let cloudinaryServer = 'https://res.cloudinary.com/toanphat/image/upload';
+        let BASE_SCALE_IMAGE = "c_limit,w_150,h_100,q_100";
+        let folderName = product.folderName;
+        let fileName = product.fileName;
+
+        let avatarUrl = cloudinaryServer + '/' + BASE_SCALE_IMAGE + '/' + folderName + '/' + fileName;
+
+        let str = `
+                <tr>
+                    <td>${product.id}</td>
+                    <td>
+                        <img src="${avatarUrl}" alt=""/>
+                    </td>
+                    <td>${product.title}</td>
+                    <td>${product.price}</td>
+                    <td>${product.description}</td>
+                    <td>Edit</td>
+                </tr>
+            `;
+
+        page.element.frmListProduct.prepend(str)
+    }
+
+    page.initializeControlEvent = () => {
+
+        page.element.btnShowCreateModal.on("click", function () {
+            console.log(123)
+            page.commands.showCreateModal();
+        });
+
+        page.element.btnSave.on("click", function () {
+            page.dialogs.commands.createProduct();
+        });
+
+        page.dialogs.elements.divImagePreview.on("click", function () {
+            page.dialogs.elements.imageFile.trigger("click");
+        });
+
+        page.dialogs.elements.imageFile.on("change", function () {
+            page.dialogs.commands.changeImagePreview();
+        });
+
+        // page.dialogs.elements.btnClearImagePreview.on("click", function () {
+        //     page.dialogs.elements.clearImagePreview();
+        // });
+
+    }
+
+    $(() => {
+        page.loadData.getAllProducts();
+        // page.loadData.getAllProducts().then(function () {
+        //     page.initializeControlEvent();
+        // });
+
+        page.initializeControlEvent();
+
+    });
+</script>
+</body>
+<footer>
+    <th:block th:replace="/layout/footer :: footer"/>
+</footer>
+</html>
