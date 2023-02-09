@@ -167,17 +167,18 @@ public class ProductService implements IProductService {
         product.setQuantity(0L);
         productRepository.save(product);
 
-        String fileType = productEditDto.getFile().getContentType();
+        if (productEditDto.getFile() != null) {
+            String fileType = productEditDto.getFile().getContentType();
 
-        assert fileType != null;
+            assert fileType != null;
 
 
-        fileType = fileType.substring(0, 5);
-        ProductMedia productMedia = mediaRepository.findByProduct(product).get();
-//        productMedia.setId(null);
-        productMedia.setFileType(fileType);
-        productMediaRepository.save(productMedia);
-        uploadAndSaveEditProductImage(productEditDto, product, productMedia);
+            fileType = fileType.substring(0, 5);
+            ProductMedia productMedia = mediaRepository.findByProduct(product).get();
+            productMedia.setFileType(fileType);
+            productMediaRepository.save(productMedia);
+            uploadAndSaveEditProductImage(productEditDto, product, productMedia);
+        }
 
         return product;
     }

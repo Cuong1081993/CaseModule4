@@ -9,6 +9,7 @@ import com.example.bakery.model.dto.ProductCreateDTO;
 import com.example.bakery.model.dto.ProductEditDTO;
 import com.example.bakery.model.dto.ProductResponseDTO;
 import com.example.bakery.repository.CategoryRepository;
+import com.example.bakery.repository.ProductMediaRepository;
 import com.example.bakery.service.product.IProductService;
 import com.example.bakery.service.productMedia.IProductMediaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class ProductAPI {
     private IProductMediaService productMediaService;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductMediaRepository productMediaRepository;
+
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -73,22 +77,36 @@ public class ProductAPI {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Optional<Product> productOptional = productService.findById(id);
         System.out.println(productOptional);
         if (!productOptional.isPresent()) {
             throw new DataInputException("Product invalid");
         }
-        productService.softDelete(productOptional.get().getId());
+        productService.softDelete(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        Optional<Product> productOptional = productService.findById(id);
+        if (!productOptional.isPresent()) {
+            throw new DataInputException("Product invalid");
+        }
+
+        Product product = productOptional.get();
+
+        Optional<ProductMedia> productMediaOptional = productMediaService.findByProduct(product);
+
+        ProductResponseDTO productResponseDTO = product.toProductResponseDTO(productMediaOptional.get());
+        return new ResponseEntity<>(productResponseDTO, HttpStatus.OK);
     }
 
     @GetMapping("/update/{idEdit}")
     public ResponseEntity<?> findEditProductById(@PathVariable Long idEdit) {
         Optional<Product> productOptional = productService.findById(idEdit);
         Product product = productOptional.get();
-//        System.out.println("api" + product);
         Optional<ProductMedia> productMedia = productMediaService.findByProduct(product);
         return new ResponseEntity<>(productMedia.get(), HttpStatus.OK);
     }

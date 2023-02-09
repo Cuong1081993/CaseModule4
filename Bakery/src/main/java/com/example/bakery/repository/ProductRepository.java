@@ -21,6 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "p.price, " +
             "p.quantity, " +
             "p.description, " +
+            "p.category.id, " +
             "p.category.typeProduct, " +
             "pm.id, " +
             "pm.fileName, " +
@@ -37,8 +38,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByDeletedIsFalse();
 
     @Modifying
-    @Query("UPDATE Product AS p SET p.deleted = 1 WHERE p.id = :productId")
-    void softDelete(@Param("productId") long productId);
+    @Query("UPDATE Product AS p SET p.deleted = TRUE WHERE p.id = :productId")
+    void softDelete(@Param("productId") Long productId);
 
     @Query("SELECT NEW com.example.bakery.model.dto.ProductResponseDTO(" +
             "p.id, " +
@@ -46,6 +47,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "p.price, " +
             "p.quantity, " +
             "p.description, " +
+            "p.category.id, " +
             "p.category.typeProduct, " +
             "pm.id, " +
             "pm.fileName, " +

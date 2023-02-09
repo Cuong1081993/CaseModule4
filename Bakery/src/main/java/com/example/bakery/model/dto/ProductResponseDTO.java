@@ -22,6 +22,7 @@ public class ProductResponseDTO {
     private BigDecimal price;
     private Long quantity;
     private String description;
+    private Long categoryId;
     private String category;
 
     private String mediaId;
@@ -37,4 +38,5 @@ public class ProductResponseDTO {
         this.description = description;
         this.category = category;
     }
+
 }

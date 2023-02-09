@@ -47,13 +47,15 @@ public class Product extends BaseEntity {
                 .setDescription(description)
                 .setCategory(category.getTypeProduct());
     }
-    public ProductResponseDTO toProductResponseDTO(ProductMedia productMedia){
-        return  new ProductResponseDTO()
+
+    public ProductResponseDTO toProductResponseDTO(ProductMedia productMedia) {
+        return new ProductResponseDTO()
                 .setId(id)
                 .setTitle(title)
                 .setPrice(price)
                 .setQuantity(quantity)
                 .setDescription(description)
+                .setCategoryId(category.getId())
                 .setCategory(category.getTypeProduct())
                 .setMediaId(productMedia.getId())
                 .setFileName(productMedia.getFileName())

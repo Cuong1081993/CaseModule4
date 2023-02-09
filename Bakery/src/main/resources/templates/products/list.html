@@ -54,14 +54,14 @@
     </div>
 </div>
 
-    <th:block th:replace="products/modalCreate" />
+<th:block th:replace="products/modalCreate :: modalCreateProduct"/>
+<th:block th:replace="products/modalUpdate :: modalUpdateProduct"></th:block>
 
 <script src="/assets/jquery/v3.6.3/jquery-3.6.3.min.js"></script>
 <script src="/assets/jquery-validate/v1.19.5/jquery.validate.min.js"></script>
 <script src="/assets/bootstrap/v5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/sweetalert2/v11.7.0/sweetalert2.min.js"></script>
 <script src="/assets/js/appBase.js"></script>
-
 
 
 <script>
@@ -71,7 +71,9 @@
             getAllProducts: AppBase.BASE_URL_PRODUCT,
             getAllCategory: AppBase.API_CATEGORY,
             doSave: AppBase.BASE_URL_PRODUCT,
-            // doDelete: App.BASE_URL_PRODUCT + "/delete/"
+            updateById: AppBase.API_UPDATE + "/update",
+            doUpdate: AppBase.API_DO_UPDATE + "/update",
+            doDelete: AppBase.BASE_URL_PRODUCT + "/delete"
         },
         element: {},
         commands: {},
@@ -81,6 +83,8 @@
             commands: {}
         }
     }
+
+    let product = {};
     page.element.loader = $(".loader");
     page.element.tempProduct = $("#tempProduct");
     page.element.currentRow = $("#currentRow");
@@ -95,22 +99,46 @@
     page.dialogs.elements.modalCreateProduct = $("#modalCreateProduct");
     page.dialogs.elements.frmProduct = $("#frmProduct");
 
-    page.dialogs.elements.wrapper = $("section .wrapper");
+    page.dialogs.elements.wrapper = $("#frmProduct section .wrapper");
     page.dialogs.elements.productTitle = $("#productTitle");
     page.dialogs.elements.productPrice = $("#productPrice");
     page.dialogs.elements.productCategory = $("#productCategory");
     page.dialogs.elements.description = $("#description");
     page.dialogs.elements.imageFile = $("#imageFile");
-    page.dialogs.elements.wrapperContent = $("section .wrapper .content");
-    page.dialogs.elements.imagePreview = $("section .image-preview canvas");
+    page.dialogs.elements.wrapperContent = $("#frmProduct section .wrapper .content");
+    page.dialogs.elements.imagePreview = $("#frmProduct section .image-preview canvas");
     page.dialogs.elements.canvas = $("#canvas");
     page.dialogs.elements.context = page.dialogs.elements.canvas[0].getContext('2d');
     page.dialogs.elements.imagePreview.css("display", "none");
-    page.dialogs.elements.divImagePreview = $("div.image-preview, div.file-name");
-    page.dialogs.elements.btnClearImagePreview = $(".clear-image-preview i");
+    page.dialogs.elements.divImagePreview = $("#frmProduct div.image-preview, #frmProduct section div.file-name");
+    page.dialogs.elements.btnClearImagePreview = $("#frmProduct .clear-image-preview i");
+
+    page.dialogs.elements.frmUpdate = $("#frmUpdate");
+    page.dialogs.elements.idUpdate = $("#idUpdate");
+    page.dialogs.elements.modalUpdateProduct = $("#modalUpdateProduct");
+    page.dialogs.elements.wrapperUp = $("#frmUpdate section .wrapper");
+    page.dialogs.elements.productTitleUp = $("#productTitleUp");
+    page.dialogs.elements.productPriceUp = $("#productPriceUp")
+    page.dialogs.elements.productDescriptionUp = $("#descriptionUp");
+    page.dialogs.elements.productCategoryUp = $("#productCategoryUp");
+    page.dialogs.elements.imageFileUp = $("#imageFileUp");
+    page.dialogs.elements.wrapperContentUp = $("#frmUpdate section .wrapper .content");
+    page.dialogs.elements.imagePreviewUp = $("#frmUpdate section .image-preview canvas");
+    page.dialogs.elements.canvasUp = $("#canvasUp");
+    page.dialogs.elements.contextUp = page.dialogs.elements.canvasUp[0].getContext('2d');
+    page.dialogs.elements.imagePreviewUp.css("display", "none");
+    page.dialogs.elements.divImagePreviewUp = $("#frmUpdate div.image-preview, #frmUpdate section div.file-name");
+    page.dialogs.elements.btnClearImagePreviewUp = $("#frmUpdate .clear-image-preview i");
+    page.dialogs.elements.btnUpdateProduct = $("#btnUpdate");
+
+    // // page.elements.btnShowDeleteModal = $(".delete");
+    // page.dialogs.elements.modalDeleteProduct = $("#modalDelete");
+    // page.dialogs.elements.idDelete = $("#idDelete");
+    //
+    // // page.elements.tbProductBody = $('#tbListProducts tbody');
 
     page.loadData.getAllProducts = () => {
-        $.ajax({
+        return $.ajax({
             type: "GET",
             url: page.urls.getAllProducts,
         }).done((data) => {
@@ -144,7 +172,7 @@
             page.dialogs.elements.context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
         };
 
-        imageObj.src = URL.createObjectURL(imageFile)
+        imageObj.src = URL.createObjectURL(imageFile);
     }
     page.dialogs.commands.changeImagePreview = () => {
         let imageFile = page.dialogs.elements.imageFile[0].files[0];
@@ -154,13 +182,47 @@
 
             reader.readAsDataURL(imageFile);
 
-            reader.onload = function(e){
+            reader.onload = function (e) {
                 if (e.target.readyState === FileReader.DONE) {
                     page.dialogs.commands.loadImageToCanvas(imageFile);
                 }
             }
         } else {
             page.dialogs.elements.clearImagePreview();
+        }
+    }
+
+    page.dialogs.commands.loadImageToCanvasUp = (imageFile, event = "load") => {
+        page.dialogs.elements.imagePreviewUp.css("display", "");
+        page.dialogs.elements.wrapperUp.addClass("active");
+        page.dialogs.elements.wrapperContentUp.css("opacity", 0);
+
+        let imageObj = new Image();
+
+        imageObj.onload = function () {
+            page.dialogs.elements.context.canvas.width = imageObj.width;
+            page.dialogs.elements.context.canvas.height = imageObj.height;
+            page.dialogs.elements.contextUp.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
+        };
+
+        return (event === "load") ? (imageObj.src = imageFile) : (imageObj.src = URL.createObjectURL(imageFile));
+    }
+
+    page.dialogs.commands.changeImagePreviewUp = () => {
+        let imageFile = page.dialogs.elements.imageFileUp[0].files[0];
+
+        if (imageFile) {
+            let reader = new FileReader();
+
+            reader.readAsDataURL(imageFile);
+
+            reader.onload = function (e) {
+                if (e.target.readyState === FileReader.DONE) {
+                    page.dialogs.commands.loadImageToCanvasUp(imageFile, 'change');
+                }
+            }
+        } else {
+            page.dialogs.elements.btnClearImagePreviewUp();
         }
     }
 
@@ -210,7 +272,7 @@
         let avatarUrl = cloudinaryServer + '/' + BASE_SCALE_IMAGE + '/' + folderName + '/' + fileName;
 
         let str = `
-                <tr>
+                <tr id="tr_${product.id}">
                     <td>${product.id}</td>
                     <td>
                         <img src="${avatarUrl}" alt=""/>
@@ -218,10 +280,10 @@
                     <td>${product.title}</td>
                     <td>${product.price}</td>
                     <td>${product.quantity}</td>
-                    <td>${product.category}</td>
                     <td>${product.description}</td>
+                    <td>${product.category}</td>
                     <td>
-                        <button class="btn btn-outline-secondary update" data-id="${product.id}">
+                        <button   class="btn btn-outline-secondary update"  data-id="${product.id}">
                             <i class="fas fa-edit"></i>
                         </button>
                     </td>
@@ -235,6 +297,91 @@
 
 
         page.element.tbProduct.prepend(str)
+    }
+
+    page.commands.showUpdateModal = () => {
+        page.dialogs.elements.modalUpdateProduct.modal('show');
+    }
+    page.dialogs.elements.modalCreateProduct.on("hidden.bs.modal", () => {
+        page.dialogs.elements.frmProduct[0].reset();
+        // page.elements.frmUpdateProduct.validate().resetForm();
+    })
+
+    page.commands.showUpdateProduct = () => {
+        $(".update").on("click", function () {
+            let id = $(this).data("id");
+            page.commands.findProductById(id).then(() => {
+                page.dialogs.elements.idUpdate.val(product.id);
+                page.dialogs.elements.productTitleUp.val(product.title);
+                page.dialogs.elements.productPriceUp.val(product.price);
+                page.dialogs.elements.productDescriptionUp.val(product.description);
+                page.dialogs.elements.productCategoryUp.val(product.categoryId);
+
+                let imageUrl = product.fileUrl;
+                page.dialogs.commands.loadImageToCanvasUp(imageUrl);
+
+            })
+            page.commands.showUpdateModal();
+        });
+    }
+    page.dialogs.elements.btnUpdateProduct.on("click", () => {
+        doUpdate();
+        // page.dialogs.elements.frmUpdate.trigger("submit");
+    })
+
+
+
+    function doUpdate () {
+        let formData = new FormData();
+        formData.append("id", page.dialogs.elements.idUpdate.val());
+        formData.append("title",  page.dialogs.elements.productTitleUp.val());
+        formData.append("price", page.dialogs.elements.productPriceUp.val());
+        formData.append("description", page.dialogs.elements.productDescriptionUp.val());
+        formData.append("category", page.dialogs.elements.productCategoryUp.val());
+        //formData.append("file", page.dialogs.elements.imageFile[1].files[0]);
+        $.ajax({
+            type: "POST",
+            contentType: false,
+            cache: false,
+            processData: false,
+            url: page.urls.doUpdate,
+            data: formData
+        }).done((data) => {
+            console.log(data)
+
+            let trProduct = $("#tr_" + data.id)
+            let str = page.commands.renderProduct(data);
+            trProduct.replaceWith(str);
+
+            AppBase.showSuccessAlert(AppBase.AlertMessageEn.SUCCESS_UPDATED);
+
+            page.dialogs.elements.modalUpdateProduct.modal('hide');
+        }).fail((err) => {
+            // page.dialogs.elements.modalCreateProduct.modal('hide');
+            AppBase.showErrorAlert(AppBase.AlertMessageEn.ERROR_400);
+        }).always(function () {
+            // page.dialogs.elements.btnShowCreateModal.prop("disabled", false);
+        });
+    }
+    page.commands.findProductById = (id) => {
+        return $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "GET",
+            url: page.urls.getAllProducts + "/" + id
+        })
+            .done((data) => {
+                product = data;
+            })
+            .fail((error) => {
+                console.log(error)
+            })
+    }
+
+    page.element.showUpdateModal = () => {
+        page.dialogs.elements.modalUpdateProduct.modal('show');
     }
 
     page.initializeControlEvent = () => {
@@ -255,23 +402,69 @@
             page.dialogs.commands.changeImagePreview();
         });
 
-        // page.dialogs.elements.btnClearImagePreview.on("click", function () {
-        //     page.dialogs.elements.clearImagePreview();
-        // });
+
+        page.dialogs.elements.divImagePreviewUp.on("click", function () {
+            page.dialogs.elements.imageFileUp.trigger("click");
+        });
+
+        page.dialogs.elements.imageFileUp.on("change", function () {
+            page.dialogs.commands.changeImagePreviewUp();
+        });
+        $('#btnLogout').on('click', () => {
+            location.href = '/logout';
+        })
+
+        page.commands.showUpdateProduct();
+
+        $(".delete").on("click", function () {
+            let id = $(this).data("id");
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        headers: {
+                            "accept": "application/json",
+                            "content-type": "application/json"
+                        },
+                        type: "DELETE",
+                        url: page.urls.doDelete + '/' + id
+                    })
+                        .done((data) => {
+                            $("#tr_" + id).remove();
+
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'success',
+                                title: 'Delete customer successful',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        })
+                        .fail((error) => {
+                            console.log(error)
+                        })
+                }
+            })
+        })
 
     }
 
     $(() => {
-        page.loadData.getAllProducts();
-        let element = $("#productCategory");
-        getAllCategory(element);
-        // page.loadData.getAllProducts().then(function () {
-        //     page.initializeControlEvent();
-        // });
-
-        page.initializeControlEvent();
-
+        page.loadData.getAllProducts().then(() => {
+            page.initializeControlEvent();
+        });
+        getAllCategory();
     });
+
     function getAllCategory(element) {
 
         $.ajax({
@@ -283,10 +476,13 @@
             url: page.urls.getAllCategory
         })
             .done((data) => {
-                element.append('<option value="-1" selected disabled>Category</option>')
+                let str = '<option value="-1" selected disabled>Category</option>';
                 $.each(data, function (index, value) {
-                    element.append(`<option value="${value.id}">${value.typeProduct}</option>`)
+                    str += `<option value="${value.id}">${value.typeProduct}</option>`;
                 });
+
+                page.dialogs.elements.productCategory.append(str)
+                page.dialogs.elements.productCategoryUp.append(str)
             })
     }
 </script>

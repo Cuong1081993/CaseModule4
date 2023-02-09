@@ -13,7 +13,7 @@ import java.util.Date;
 @MappedSuperclass
 public abstract class BaseEntity {
 
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "boolean default false", updatable = false)
     private Boolean deleted = false;
 
     @CreationTimestamp
